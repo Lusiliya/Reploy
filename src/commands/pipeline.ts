@@ -20,7 +20,6 @@ async function executeStep(step: any, cfg: any, activeWorkspace?: string) {
         const { command, args, cwd, fullCommand, isReployCommand, openWindow: cmdOpenWindow } = parseCommand(cmd, cfg);
         // Use command-level openWindow if set, otherwise fall back to step-level openWindow
         const openWindow = cmdOpenWindow !== undefined ? cmdOpenWindow : (step.openWindow === true);
-        console.log(`[pipeline][debug] Command: ${fullCommand}, cmdOpenWindow: ${cmdOpenWindow}, step.openWindow: ${step.openWindow}, final openWindow: ${openWindow}`);
         if (openWindow) {
           if (isReployCommand) {
             const toRun = `reploy ${fullCommand}`;
@@ -74,7 +73,7 @@ function parseCommand(cmd: any, cfg: any) {
     return { command, args, cwd: process.cwd(), fullCommand: cmd, isReployCommand, openWindow: false };
   } else {
     // Object command with repo and path info
-    const { repo, path: cmdPath, command: cmdStr, cwd: explicitCwd, openWindow = false } = cmd;
+    const { repo, path: cmdPath, command: cmdStr, cwd: explicitCwd, openWindow } = cmd;
     
     let targetCwd = explicitCwd || process.cwd();
     
@@ -120,15 +119,15 @@ async function executeInNewWindow(command: string, workspace?: string, cwd?: str
       runCmd = fullCommand;
     }
     
-    const echoOk = `echo [pipeline][OK] %date% %time%`;
-    const echoErr = `echo [pipeline][ERROR] %date% %time% (exit %%errorlevel%%)`;
-    const footer = `echo. & echo Press any key to close...`;
-    const composed = `title ${title} & cd /d "${workingDir}" & ${echoStart} & ${runCmd} & if errorlevel 1 ( ${echoErr} ) else ( ${echoOk} ) & ${footer} & pause`;
+    // Simplified command - just run the command and pause
+    const composed = `${runCmd} & pause`;
     console.log(`[pipeline] Opening new window: ${fullCommand}`);
     console.log(`[pipeline] Working directory: ${workingDir}`);
 
     // Execute using argument array to avoid quoting pitfalls
-    const child = spawn('cmd', ['/c', 'start', title, 'cmd', '/k', composed], {
+    // Use start /D to set working dir and COMSPEC with /s /k for robust parsing
+    const comspec = process.env.ComSpec || `${process.env.SystemRoot}\\System32\\cmd.exe`;
+    const child = spawn('cmd', ['/d', '/c', 'start', '""', '/D', workingDir, comspec, '/s', '/k', composed], {
       cwd: workingDir,
       stdio: 'ignore',
       windowsHide: false,

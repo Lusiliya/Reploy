@@ -281,10 +281,13 @@ reploy pipeline run start-frontend
 ```
 
 管道特性：
-- 每个命令在独立命令行窗口中执行
-- 支持并行和顺序执行
+- 支持并行与顺序：同一步内可并行执行；所有并行命令完成后再进入下一步
+- 新窗口执行：可按 step 或 command 级配置 `openWindow`；默认 `false`
+  - 优先级：command 级 `openWindow` > step 级 `openWindow` > 默认值
+  - 新窗口内会保持打开（已追加 `pause`），便于查看日志和错误
+- 失败处理：继续执行后续步骤，结束后输出失败步骤/命令的汇总
 - 自动传递工作空间参数
-- 支持复杂的工作目录解析
+- 动态解析工作目录：支持通过 `repo` 与 `path` 自动定位 `cwd`
 
 ### 其他功能
 
@@ -368,6 +371,37 @@ reploy demo --repo gces-ui
 - **ignores**: 忽略的仓库列表
 - **pipelines**: 预定义管道
 
+#### `openWindow` 说明
+- 配置位置：
+  - step 级：对该步骤内未显式配置 `openWindow` 的命令生效
+  - command 级：仅对该命令生效，优先级高于 step 级
+- 默认值：`false`
+- 典型示例：
+  ```json
+  {
+    "name": "example",
+    "steps": [
+      {
+        "name": "command-level",
+        "parallel": true,
+        "commands": [
+          { "command": "echo A", "openWindow": true },
+          { "command": "echo B", "openWindow": false }
+        ]
+      },
+      {
+        "name": "step-level",
+        "openWindow": true,
+        "parallel": true,
+        "commands": [
+          { "command": "echo C" },
+          { "command": "echo D" }
+        ]
+      }
+    ]
+  }
+  ```
+
 ### 仓库配置
 
 ```json
@@ -432,6 +466,31 @@ reploy demo --repo gces-ui
     }
   ]
 }
+```
+
+### 测试管道示例
+用于快速验证新窗口打开与保持：
+
+```json
+{
+  "name": "test-window",
+  "description": "测试新窗口功能",
+  "steps": [
+    {
+      "name": "simple-test",
+      "parallel": true,
+      "commands": [
+        { "command": "echo 这是一个测试窗口，应该保持打开", "openWindow": true },
+        { "command": "echo 这是第二个测试窗口", "openWindow": true }
+      ]
+    }
+  ]
+}
+```
+
+运行：
+```bash
+reploy pipeline run test-window
 ```
 
 ### 管道命令类型
