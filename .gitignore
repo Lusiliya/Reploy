@@ -1,0 +1,16 @@
+# Local configs and state
+reploy.config.json
+*.local.json
+
+# Build output
+dist/
+
+# Node
+node_modules/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

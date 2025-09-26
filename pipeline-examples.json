@@ -1,0 +1,76 @@
+{
+  "pipelines": [
+    {
+      "name": "deploy-apps",
+      "description": "一键重新部署 app-server, app-common",
+      "steps": [
+        {
+          "name": "fetch-and-pull",
+          "commands": [
+            "fetch --repo app-server",
+            "fetch --repo app-common", 
+            "pull --repo app-server",
+            "pull --repo app-common"
+          ],
+          "parallel": true
+        },
+        {
+          "name": "dotnet-restore",
+          "commands": [
+            {
+              "repo": "app-server",
+              "command": "dotnet restore App.Server.sln"
+            },
+            {
+              "repo": "app-common", 
+              "command": "dotnet restore App.Common.sln"
+            }
+          ],
+          "parallel": true
+        },
+        {
+          "name": "yarn-install",
+          "commands": [
+            {
+              "repo": "app-server",
+              "path": "src/App.Server",
+              "command": "yarn install --frozen-lockfile"
+            },
+            {
+              "repo": "app-common",
+              "path": "src/Plugin.Dataset/ClientApp",
+              "command": "yarn install --frozen-lockfile"
+            }
+          ],
+          "parallel": true
+        },
+        {
+          "name": "yarn-build",
+          "commands": [
+            {
+              "repo": "app-server",
+              "path": "src/App.Server",
+              "command": "yarn run build"
+            },
+            {
+              "repo": "app-common",
+              "path": "src/Plugin.Dataset/ClientApp",
+              "command": "yarn run build"
+            }
+          ],
+          "parallel": true
+        },
+        {
+          "name": "dotnet-build",
+          "commands": [
+            {
+              "repo": "app-server",
+              "command": "dotnet build App.Server.sln -c Release"
+            }
+          ],
+          "parallel": false
+        }
+      ]
+    }
+  ]
+}
