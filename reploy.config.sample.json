@@ -1,0 +1,152 @@
+{
+  "concurrency": 6,
+  "repos": [],
+  "ignores": [],
+  "workspaces": {
+    "develop": {
+      "workspace": "C:\\workspace\\develop",
+      "concurrency": 6,
+      "repos": [
+        {
+          "name": "example-frontend",
+          "path": "C:\\workspace\\develop\\example-frontend",
+          "type": "frontend",
+          "packageManager": "npm",
+          "remote": {
+            "url": "https://github.com/example/example-frontend.git"
+          }
+        },
+        {
+          "name": "example-backend",
+          "path": "C:\\workspace\\develop\\example-backend",
+          "type": "backend",
+          "dotnet": {
+            "solution": "Example.sln"
+          },
+          "remote": {
+            "url": "https://github.com/example/example-backend.git"
+          }
+        },
+        {
+          "name": "example-java",
+          "path": "C:\\workspace\\develop\\example-java",
+          "type": "backend",
+          "java": {
+            "buildTool": "maven"
+          },
+          "remote": {
+            "url": "https://github.com/example/example-java.git"
+          }
+        }
+      ],
+      "ignores": [],
+      "pipelines": []
+    },
+    "release": {
+      "workspace": "C:\\workspace\\release",
+      "concurrency": 4,
+      "repos": [
+        {
+          "name": "example-frontend",
+          "path": "C:\\workspace\\release\\example-frontend",
+          "type": "frontend",
+          "packageManager": "yarn",
+          "remote": {
+            "url": "https://github.com/example/example-frontend.git"
+          }
+        }
+      ],
+      "ignores": [],
+      "pipelines": []
+    }
+  },
+  "defaultWorkspace": "develop",
+  "pipelines": [
+    {
+      "name": "deploy-example",
+      "description": "一键部署示例项目",
+      "steps": [
+        {
+          "name": "branch",
+          "commands": [
+            "branch --repo example-frontend --release v1.0",
+            "branch --repo example-backend --release v1.0"
+          ],
+          "parallel": true
+        },
+        {
+          "name": "pull",
+          "commands": [
+            "pull --repo example-frontend",
+            "pull --repo example-backend"
+          ],
+          "parallel": true
+        },
+        {
+          "name": "install-deps",
+          "commands": [
+            { "repo": "example-frontend", "command": "npm install" },
+            { "repo": "example-backend", "command": "dotnet restore" }
+          ],
+          "parallel": true,
+          "openWindow": true
+        },
+        {
+          "name": "build",
+          "commands": [
+            { "repo": "example-frontend", "command": "npm run build" },
+            { "repo": "example-backend", "command": "dotnet build -c Release" }
+          ],
+          "parallel": true,
+          "openWindow": true
+        }
+      ]
+    },
+    {
+      "name": "start-dev",
+      "description": "启动开发环境",
+      "steps": [
+        {
+          "name": "start-frontend",
+          "commands": [
+            { "repo": "example-frontend", "command": "npm run dev" }
+          ],
+          "parallel": false,
+          "openWindow": true
+        }
+      ]
+    }
+  ],
+  "installers": [
+    {
+      "name": "Visual Studio",
+      "directory": "C:\\installers\\vs",
+      "pattern": "*.exe",
+      "description": "Visual Studio installer packages"
+    },
+    {
+      "name": "Node.js",
+      "directory": "C:\\installers\\nodejs",
+      "pattern": "node-v*.msi",
+      "description": "Node.js installer packages"
+    },
+    {
+      "name": "Git",
+      "directory": "C:\\installers\\git",
+      "pattern": "Git-*.exe",
+      "description": "Git installer packages"
+    },
+    {
+      "name": "Chrome",
+      "directory": "C:\\installers\\chrome",
+      "pattern": "*.exe",
+      "description": "Google Chrome installer"
+    },
+    {
+      "name": "Example Enterprise",
+      "directory": "\\\\example-build\\Artifacts\\v1.0\\windows",
+      "pattern": "Example-enterprise-x64-*.exe",
+      "description": "Example Enterprise Server installer packages"
+    }
+  ]
+}

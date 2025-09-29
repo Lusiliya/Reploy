@@ -14,6 +14,7 @@ import { workspaceCommand } from './commands/workspace.js';
 import { branchCommand } from './commands/branch.js';
 import { fetchCommand } from './commands/fetch.js';
 import { remoteCommand } from './commands/remote.js';
+import { installerCommand } from './commands/installer.js';
 
 const program = new Command();
 
@@ -51,6 +52,7 @@ program.addCommand(workspaceCommand());
 program.addCommand(branchCommand());
 program.addCommand(fetchCommand());
 program.addCommand(remoteCommand());
+program.addCommand(installerCommand());
 
 program.parseAsync().catch((err) => {
   console.error(err);

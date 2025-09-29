@@ -61,16 +61,26 @@ const WorkspaceSchema = z.object({
     .default([])
 });
 
+const InstallerConfigSchema = z.object({
+  name: z.string(),
+  directory: z.string(),
+  pattern: z.string().optional(), // 文件匹配模式，如 "*.exe", "*.msi"
+  description: z.string().optional()
+});
+
 const ConfigSchema = WorkspaceSchema.extend({
   // Optional multi-workspace support
   workspaces: z.record(WorkspaceSchema).optional(),
   defaultWorkspace: z.string().optional(),
   // Global pipelines that are available regardless of workspace
-  pipelines: WorkspaceSchema.shape.pipelines.optional()
+  pipelines: WorkspaceSchema.shape.pipelines.optional(),
+  // Installer packages configuration
+  installers: z.array(InstallerConfigSchema).optional()
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;
 export type WorkspaceConfig = z.infer<typeof WorkspaceSchema>;
+export type InstallerConfig = z.infer<typeof InstallerConfigSchema>;
 
 let loadedConfig: AppConfig | null = null;
 let loadedPath: string | null = null;
