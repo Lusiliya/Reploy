@@ -20,7 +20,7 @@ Reploy 是一个强大的命令行工具，用于管理多个 Git 仓库的工�
 ### 前置要求
 
 - Node.js 18+ 
-- npm 或 yarn
+- npm (推荐) 或 yarn
 - Git
 - Windows PowerShell (Windows 用户)
 - **后端开发** (可选):
@@ -32,16 +32,33 @@ Reploy 是一个强大的命令行工具，用于管理多个 Git 仓库的工�
 1. 克隆或下载 Reploy 项目
 2. 安装依赖：
    ```bash
+   # 使用 npm (推荐)
    npm install
+   
+   # 或使用 yarn
+   yarn install
    ```
 3. 构建项目：
    ```bash
+   # 使用 npm
    npm run build
+   
+   # 或使用 yarn
+   yarn build
    ```
-4. 全局安装（可选）：
-   ```bash
-   npm link
-   ```
+
+### 运行方式
+
+**方式一：全局安装（推荐）**
+```bash
+npm link
+reploy <command>
+```
+
+**方式二：直接运行**
+```bash
+node dist/index.js <command>
+```
 
 ## 快速开始
 
@@ -110,9 +127,6 @@ reploy workspace set-default develop
 
 # 移动仓库到其他工作空间
 reploy workspace move gces-server release
-
-# 设置远程URL模式
-reploy workspace set-remote "https://gitea.example.com/{project}/{name}.git"
 ```
 
 #### `reploy init`
